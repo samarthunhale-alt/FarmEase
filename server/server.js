@@ -25,26 +25,30 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 const PORT = process.env.PORT || 5001;
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
-// Security and logging
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+const allowedOrigins = [
+  'https://farm-ease-2855tsybl-samarthunhale-alts-projects.vercel.app',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+];
+
+// Security
+app.use(
+  helmet({
+    crossOriginResourcePolicy: {
+      policy: 'cross-origin',
+    },
+  })
+);
+
+// Logging
 app.use(morgan('dev'));
 
 // CORS
-const allowedOrigins = [CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'];
-
 app.use(
   cors({
-    origin: (origin, callback) => {
-      const isLocalDev =
-        origin && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
-      if (!origin || allowedOrigins.includes(origin) || isLocalDev) {
-        return callback(null, true);
-      }
-      return callback(new Error('Not allowed by CORS'));
-    },
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -60,6 +64,7 @@ app.use(
   })
 );
 
+// Body parser
 app.use(express.json());
 
 // Uploaded images
@@ -67,7 +72,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Health check
 app.get('/', (req, res) => {
-  res.json({ message: 'Farmer API is running' });
+  res.json({
+    message: 'Farmer API is running',
+  });
 });
 
 // API routes
@@ -83,25 +90,31 @@ app.use('/api/uploads', uploadRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/weather', weatherRoutes);
 
-// 404 handler
+// 404
 app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+  res.status(404).json({
+    message: 'Route not found',
+  });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(err.status || 500).json({ message: err.message || 'Server error' });
+
+  res.status(err.status || 500).json({
+    message: err.message || 'Server error',
+  });
 });
 
 // Start server
 const startServer = async () => {
   try {
     if (!MONGO_URI) {
-      throw new Error('MONGODB_URI is missing in .env');
+      throw new Error('MONGODB_URI is missing');
     }
 
     const conn = await mongoose.connect(MONGO_URI);
+
     console.log(`MongoDB connected: ${conn.connection.host}`);
 
     const server = app.listen(PORT, () => {
@@ -109,21 +122,19 @@ const startServer = async () => {
     });
 
     server.on('error', (err) => {
-      if (err.code === 'EADDRINUSE') {
-        console.error(`Port ${PORT} is already in use. Stop the old server (Ctrl+C) and run again.`);
-        process.exit(1);
-      } else {
-        throw err;
-      }
+      console.error('Server error:', err);
+      process.exit(1);
     });
 
     const shutdown = () => {
       console.log('Shutting down...');
+
       server.close(async () => {
         await mongoose.connection.close();
         process.exit(0);
       });
     };
+
     process.on('SIGINT', shutdown);
     process.on('SIGTERM', shutdown);
   } catch (error) {
