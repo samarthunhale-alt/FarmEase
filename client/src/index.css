@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@theme {
+  --color-paddy: #f4f7e8;
+  --color-ink: #1f2937;
+
+  --color-field-50: #f0fdf4;
+  --color-field-600: #16a34a;
+  --color-field-700: #15803d;
+
+  --color-turmeric-500: #eab308;
+  --color-turmeric-600: #ca8a04;
+
+  --color-soil-600: #57534e;
+  --color-soil-700: #44403c;
+
+  --font-sans: Arial, sans-serif;
+  --font-display: Arial, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-paddy text-ink font-sans text-[17px] antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display text-ink;
+  }
+
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-turmeric-500;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-semibold transition-colors;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-field-600 text-white hover:bg-field-700;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-turmeric-500 text-ink hover:bg-turmeric-600;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-field-600 text-field-700 hover:bg-field-50;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-red-700 text-white hover:bg-red-800;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-base;
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 focus:border-field-600;
+  }
+
+  .label {
+    @apply mb-1 block font-semibold text-soil-700;
+  }
+
+  .card {
+    @apply rounded-xl border border-stone-200 bg-white;
+  }
+
+  .badge {
+    @apply inline-block rounded-full px-2.5 py-0.5 text-sm font-semibold;
+  }
+
+  .th {
+    @apply whitespace-nowrap px-3 py-2 text-left text-sm font-semibold text-soil-600;
+  }
+
+  .td {
+    @apply px-3 py-3 align-top;
+  }
+}
