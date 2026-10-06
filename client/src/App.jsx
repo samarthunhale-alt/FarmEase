@@ -4,7 +4,7 @@ import DashboardLayout from './layouts/DashboardLayout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Home from './pages/Home.jsx';
 import About from './pages/About.jsx';
-import Marketplace from './pages/Marketplace.jsx';
+import { Marketplace } from './pages/Marketplace.jsx';
 import ProductDetails from './pages/ProductDetails.jsx';
 import CropInfo from './pages/CropInfo.jsx';
 import Login from './pages/Login.jsx';
