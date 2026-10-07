@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ErrorState, Loading, PageHeader } from '../../components/Feedback.jsx';
+import {
+  ErrorState,
+  Loading,
+  PageHeader,
+} from '../../components/Feedback.jsx';
 import ImageUploader from '../../components/ImageUploader.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import useFetch from '../../hooks/useFetch.js';
@@ -54,7 +58,9 @@ export default function ListingForm({ kind }) {
         category: d.category || '',
         quantity: d.quantity ?? '',
         unit: d.unit || 'kg',
-        price: isCrop ? (d.expectedPrice ?? '') : (d.price ?? ''),
+        price: isCrop
+          ? (d.expectedPrice ?? '')
+          : (d.price ?? ''),
         location: d.location || '',
         harvestDate: toInputDate(d.harvestDate),
         description: d.description || '',
@@ -124,12 +130,12 @@ export default function ListingForm({ kind }) {
       }
 
       toast.success(
-        `${isCrop ? 'Crop' : 'Product'} ${id ? 'updated' : 'added'}`
+        `${isCrop ? 'Crop' : 'Product'} ${
+          id ? 'updated' : 'added'
+        }`
       );
 
-      navigate(
-        isCrop ? '/farmer/crops' : '/farmer/products'
-      );
+      navigate('/farmer/listings');
     } catch (err) {
       setError(errMsg(err));
     } finally {
@@ -147,11 +153,15 @@ export default function ListingForm({ kind }) {
 
   const noun = isCrop ? 'crop' : 'product';
 
-  const categories = cats.data?.data ?? [];
+  // Supports both API response structures
+  const categories =
+    cats.data?.data ?? cats.data ?? [];
 
   return (
     <>
-      <PageHeader title={`${id ? 'Edit' : 'Add'} ${noun}`} />
+      <PageHeader
+        title={`${id ? 'Edit' : 'Add'} ${noun}`}
+      />
 
       <form
         onSubmit={submit}
@@ -194,13 +204,19 @@ export default function ListingForm({ kind }) {
               value={form.category}
               onChange={set('category')}
             >
-              <option value="">Choose a category</option>
+              <option value="">
+                Choose a category
+              </option>
 
-              {categories.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.name}
-                </option>
-              ))}
+              {Array.isArray(categories) &&
+                categories.map((c) => (
+                  <option
+                    key={c._id}
+                    value={c._id}
+                  >
+                    {c.name}
+                  </option>
+                ))}
             </select>
           </div>
 
@@ -274,7 +290,10 @@ export default function ListingForm({ kind }) {
 
           {isCrop && (
             <div>
-              <label className="label" htmlFor="harvest">
+              <label
+                className="label"
+                htmlFor="harvest"
+              >
                 Harvest date
               </label>
 
@@ -291,7 +310,10 @@ export default function ListingForm({ kind }) {
         </div>
 
         <div>
-          <label className="label" htmlFor="description">
+          <label
+            className="label"
+            htmlFor="description"
+          >
             Description
           </label>
 
@@ -327,11 +349,13 @@ export default function ListingForm({ kind }) {
             onChange={set('available')}
           />
 
-          Available for {isCrop ? 'sale' : 'buyers to order'}
+          Available for{' '}
+          {isCrop ? 'sale' : 'buyers to order'}
         </label>
 
         <div className="flex gap-3">
           <button
+            type="submit"
             className="btn-primary"
             disabled={busy}
           >
