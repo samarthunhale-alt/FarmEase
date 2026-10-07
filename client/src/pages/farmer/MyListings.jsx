@@ -26,7 +26,7 @@ export default function MyListings({ kind }) {
     reload,
   } = useFetch(() => API.mine(), [kind]);
 
-  const items = data?.data ?? [];
+  const items = Array.isArray(data) ? data : data?.data ?? [];
 
   const remove = async (item) => {
     if (!window.confirm(`Delete "${item.name}"? This cannot be undone.`)) {
