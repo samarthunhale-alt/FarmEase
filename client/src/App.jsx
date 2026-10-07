@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 import Navbar from './components/Navbar.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -30,11 +30,11 @@ import ProfilePage from './pages/shared/ProfilePage.jsx';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <>
       <Navbar />
 
       <Routes>
-        {/* Public */}
+        {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
@@ -43,7 +43,7 @@ export default function App() {
         <Route path="/crop-info" element={<CropInfo />} />
         <Route path="/products/:id" element={<ProductDetails />} />
 
-        {/* Farmer */}
+        {/* Farmer Routes */}
         <Route
           path="/farmer"
           element={
@@ -89,7 +89,7 @@ export default function App() {
           }
         />
 
-        {/* Buyer */}
+        {/* Buyer Routes */}
         <Route
           path="/buyer"
           element={
@@ -126,7 +126,7 @@ export default function App() {
           }
         />
 
-        {/* Admin */}
+        {/* Admin Routes */}
         <Route
           path="/admin"
           element={
@@ -163,7 +163,7 @@ export default function App() {
           }
         />
 
-        {/* Shared */}
+        {/* Shared Routes */}
         <Route
           path="/orders"
           element={
@@ -182,8 +182,9 @@ export default function App() {
           }
         />
 
+        {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </BrowserRouter>
+    </>
   );
 }
