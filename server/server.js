@@ -29,25 +29,73 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
 // Security and logging
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: {
+      policy: 'cross-origin',
+    },
+  })
+);
+
 app.use(morgan('dev'));
 
+// =========================
 // CORS
-const allowedOrigins = [CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'];
+// =========================
+
+const allowedOrigins = [
+  CLIENT_URL,
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://farm-ease-neon.vercel.app',
+];
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+
+  // Exact allowed origins
+  if (allowedOrigins.includes(origin)) {
+    return true;
+  }
+
+  // Local development
+  if (/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
+    return true;
+  }
+
+  // FarmEase Vercel deployments
+  if (/^https:\/\/farm-ease-[a-z0-9-]+\.vercel\.app$/.test(origin)) {
+    return true;
+  }
+
+  // FarmEase Vercel project preview URLs
+  if (
+    /^https:\/\/farm-ease-[a-z0-9-]+-samarthunhale-alts-projects\.vercel\.app$/.test(
+      origin
+    )
+  ) {
+    return true;
+  }
+
+  return false;
+};
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      const isLocalDev =
-        origin && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
-      if (!origin || allowedOrigins.includes(origin) || isLocalDev) {
-        return callback(null, true);
+      if (isAllowedOrigin(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
       }
-      return callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+
+app.options('*', cors());
 
 // Rate limit
 app.use(
@@ -67,7 +115,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Health check
 app.get('/', (req, res) => {
-  res.json({ message: 'Farmer API is running' });
+  res.json({
+    message: 'Farmer API is running',
+  });
 });
 
 // API routes
@@ -85,13 +135,18 @@ app.use('/api/weather', weatherRoutes);
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+  res.status(404).json({
+    message: 'Route not found',
+  });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(err.status || 500).json({ message: err.message || 'Server error' });
+
+  res.status(err.status || 500).json({
+    message: err.message || 'Server error',
+  });
 });
 
 // Start server
@@ -102,6 +157,7 @@ const startServer = async () => {
     }
 
     const conn = await mongoose.connect(MONGO_URI);
+
     console.log(`MongoDB connected: ${conn.connection.host}`);
 
     const server = app.listen(PORT, () => {
@@ -110,7 +166,10 @@ const startServer = async () => {
 
     server.on('error', (err) => {
       if (err.code === 'EADDRINUSE') {
-        console.error(`Port ${PORT} is already in use. Stop the old server (Ctrl+C) and run again.`);
+        console.error(
+          `Port ${PORT} is already in use. Stop the old server (Ctrl+C) and run again.`
+        );
+
         process.exit(1);
       } else {
         throw err;
@@ -119,11 +178,13 @@ const startServer = async () => {
 
     const shutdown = () => {
       console.log('Shutting down...');
+
       server.close(async () => {
         await mongoose.connection.close();
         process.exit(0);
       });
     };
+
     process.on('SIGINT', shutdown);
     process.on('SIGTERM', shutdown);
   } catch (error) {
